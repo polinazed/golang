@@ -1,20 +1,31 @@
-    // Клиент отправляет сообщение серверу
-    // Сервер выводит это сообщение в консоль
-	package main 
+package main
 
-	import(
-		"fmt"
-		"net"
-		"os"
-	)
+import (
+	"fmt"
+	"net"
+	"os"
+)
 
-	func main(){
-		var message string
-		conn, _ := net.Dial("tcp", "127.0.0.1:4545")
-		for{
-			fmt.Fscan(os.Stdin, &message)           // читаем с клавиатуры
-			conn.Write([]byte(message))              // отправляем
-		}
-		conn.Close()
-		
+func main() {
+	conn, err := net.Dial("tcp", "127.0.0.1:4545")
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
+	defer conn.Close()
+
+	var message string
+	for {
+		fmt.Print("Введите сообщение: ")
+		_, err := fmt.Fscan(os.Stdin, &message)
+		if err != nil {
+			fmt.Println("Ошибка ввода")
+			break
+		}
+		_, err = conn.Write([]byte(message + "\n"))
+		if err != nil {
+			fmt.Println("Ошибка отправки")
+			break
+		}
+	}
+}
