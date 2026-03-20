@@ -36,5 +36,43 @@ func saveCSVFile(filepath string) error{
 		return err 
 	}
 	defer csvfile.Close()
-	csvwriter := csv.New
+	csvwriter := csv.NewWrite(csvfile)
+	csvwriter.Comma = '\t'
+	for _, row := range myData{
+		temp := []string{row.Name, row.Surname, row.Number, row.LastAcces}
+		_ = csvwriter.Write(temp)
+	}
+	csvwriter.Flush()
+	return nil
+}
+
+func main(){
+	if len(os.Args) != 3{
+		fmt.Println("csvData input output!")
+		return
+	}
+	input := os.Args[1]
+	output := os.Args[2]
+	lines, err := readCSVFile(input)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, line := range lines{
+		temp := Record{
+			Name: line[0],
+			Surname: line[1],
+			Number: line[2],
+			LastAcces: line[3],
+		}
+		myData = append(myData, temp)
+		fmt.Println(temp)
+	}
+	err = saveCSVFile(output)
+	if err != nil{
+		fmt.Println(err)
+		return
+	}
 }
